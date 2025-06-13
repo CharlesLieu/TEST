@@ -10,19 +10,26 @@ import TabBar from './components/TabBar';
 const App: React.FC = () => {
   return (
     <Router>
-      <div className="container">
-        <Routes>
-          <Route path="/" element={
-            <div>
-              <h1>什么煮糊了管理系统</h1>
-              <div className="button-container">
-                <Link to="/menu" className="btn btn-primary">
+      <div className="min-h-screen bg-gray-100">
+        <div className="container mx-auto px-4 py-8">
+          <Routes>
+            <Route path="/" element={
+              <div className="flex flex-col items-center space-y-4">
+                <h1 className="text-3xl font-bold mb-8">什么煮糊了管理系统</h1>
+                <Link 
+                  to="/menu" 
+                  className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors"
+                >
                   上传我的菜单
                 </Link>
-                <Link to="/price-list" className="btn btn-primary">
+                <Link 
+                  to="/price-list" 
+                  className="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors"
+                >
                   上传我的价格清单
                 </Link>
               </div>
+<<<<<<< HEAD
             </div>
           } />
           <Route path="/menu" element={<MenuPage />} />
@@ -32,6 +39,13 @@ const App: React.FC = () => {
           <Route path="/recipe-generator" element={<RecipeGeneratorPage />} />
         </Routes>
         <TabBar />
+=======
+            } />
+            <Route path="/menu" element={<MenuPage />} />
+            <Route path="/price-list" element={<PriceListPage />} />
+          </Routes>
+        </div>
+>>>>>>> parent of 65545098 (release1.0.0)
       </div>
     </Router>
   );
