@@ -137,22 +137,23 @@ const MenuPage: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">菜单管理</h1>
+    <div className="container">
+      <h1>菜单管理</h1>
       
-      <div className="mb-6 space-x-4">
-        <label className="bg-blue-500 text-white px-4 py-2 rounded cursor-pointer hover:bg-blue-600">
+      <div className="mb-6">
+        <label className="btn btn-primary">
           重新上传我的菜单
           <input
             type="file"
             accept=".xlsx,.xls"
             onChange={handleFileUpload}
-            className="hidden"
+            style={{ display: 'none' }}
           />
         </label>
         <button
           onClick={() => setIsEditing(!isEditing)}
-          className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+          className="btn btn-primary"
+          style={{ marginLeft: '10px' }}
         >
           {isEditing ? '完成编辑' : '编辑当前菜单'}
         </button>
@@ -163,26 +164,26 @@ const MenuPage: React.FC = () => {
       ) : menuItems.length === 0 ? (
         <div className="text-center py-4">暂无菜单数据</div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full bg-white border border-gray-300">
+        <div className="table-container">
+          <table className="data-table">
             <thead>
               <tr>
-                <th className="px-6 py-3 border-b">菜品名称</th>
-                <th className="px-6 py-3 border-b">难易程度</th>
-                <th className="px-6 py-3 border-b">菜品描述</th>
-                <th className="px-6 py-3 border-b">原材料1</th>
-                <th className="px-6 py-3 border-b">原材料2</th>
-                <th className="px-6 py-3 border-b">原材料3</th>
-                <th className="px-6 py-3 border-b">原材料4</th>
-                <th className="px-6 py-3 border-b">原材料5</th>
-                <th className="px-6 py-3 border-b">原材料6</th>
-                {isEditing && <th className="px-6 py-3 border-b">操作</th>}
+                <th>菜品名称</th>
+                <th>难易程度</th>
+                <th>菜品描述</th>
+                <th>原材料1</th>
+                <th>原材料2</th>
+                <th>原材料3</th>
+                <th>原材料4</th>
+                <th>原材料5</th>
+                <th>原材料6</th>
+                {isEditing && <th>操作</th>}
               </tr>
             </thead>
             <tbody>
               {menuItems.map((item) => (
                 <tr key={item._id}>
-                  <td className="px-6 py-4 border-b">
+                  <td>
                     {isEditing ? (
                       <input
                         type="text"
@@ -190,13 +191,13 @@ const MenuPage: React.FC = () => {
                         onChange={(e) => setMenuItems(menuItems.map(i => 
                           i._id === item._id ? {...i, name: e.target.value} : i
                         ))}
-                        className="w-full p-2 border rounded"
+                        className="form-input"
                       />
                     ) : (
                       item.name || ''
                     )}
                   </td>
-                  <td className="px-6 py-4 border-b">
+                  <td>
                     {isEditing ? (
                       <input
                         type="text"
@@ -204,13 +205,13 @@ const MenuPage: React.FC = () => {
                         onChange={(e) => setMenuItems(menuItems.map(i => 
                           i._id === item._id ? {...i, hard: e.target.value} : i
                         ))}
-                        className="w-full p-2 border rounded"
+                        className="form-input"
                       />
                     ) : (
                       item.hard || ''
                     )}
                   </td>
-                  <td className="px-6 py-4 border-b">
+                  <td>
                     {isEditing ? (
                       <input
                         type="text"
@@ -218,13 +219,13 @@ const MenuPage: React.FC = () => {
                         onChange={(e) => setMenuItems(menuItems.map(i => 
                           i._id === item._id ? {...i, description: e.target.value} : i
                         ))}
-                        className="w-full p-2 border rounded"
+                        className="form-input"
                       />
                     ) : (
                       item.description || ''
                     )}
                   </td>
-                  <td className="px-6 py-4 border-b">
+                  <td>
                     {isEditing ? (
                       <input
                         type="text"
@@ -232,13 +233,13 @@ const MenuPage: React.FC = () => {
                         onChange={(e) => setMenuItems(menuItems.map(i => 
                           i._id === item._id ? {...i, material1: e.target.value} : i
                         ))}
-                        className="w-full p-2 border rounded"
+                        className="form-input"
                       />
                     ) : (
                       item.material1 || ''
                     )}
                   </td>
-                  <td className="px-6 py-4 border-b">
+                  <td>
                     {isEditing ? (
                       <input
                         type="text"
@@ -246,13 +247,13 @@ const MenuPage: React.FC = () => {
                         onChange={(e) => setMenuItems(menuItems.map(i => 
                           i._id === item._id ? {...i, material2: e.target.value} : i
                         ))}
-                        className="w-full p-2 border rounded"
+                        className="form-input"
                       />
                     ) : (
                       item.material2 || ''
                     )}
                   </td>
-                  <td className="px-6 py-4 border-b">
+                  <td>
                     {isEditing ? (
                       <input
                         type="text"
@@ -260,13 +261,13 @@ const MenuPage: React.FC = () => {
                         onChange={(e) => setMenuItems(menuItems.map(i => 
                           i._id === item._id ? {...i, material3: e.target.value} : i
                         ))}
-                        className="w-full p-2 border rounded"
+                        className="form-input"
                       />
                     ) : (
                       item.material3 || ''
                     )}
                   </td>
-                  <td className="px-6 py-4 border-b">
+                  <td>
                     {isEditing ? (
                       <input
                         type="text"
@@ -274,13 +275,13 @@ const MenuPage: React.FC = () => {
                         onChange={(e) => setMenuItems(menuItems.map(i => 
                           i._id === item._id ? {...i, material4: e.target.value} : i
                         ))}
-                        className="w-full p-2 border rounded"
+                        className="form-input"
                       />
                     ) : (
                       item.material4 || ''
                     )}
                   </td>
-                  <td className="px-6 py-4 border-b">
+                  <td>
                     {isEditing ? (
                       <input
                         type="text"
@@ -288,13 +289,13 @@ const MenuPage: React.FC = () => {
                         onChange={(e) => setMenuItems(menuItems.map(i => 
                           i._id === item._id ? {...i, material5: e.target.value} : i
                         ))}
-                        className="w-full p-2 border rounded"
+                        className="form-input"
                       />
                     ) : (
                       item.material5 || ''
                     )}
                   </td>
-                  <td className="px-6 py-4 border-b">
+                  <td>
                     {isEditing ? (
                       <input
                         type="text"
@@ -302,17 +303,17 @@ const MenuPage: React.FC = () => {
                         onChange={(e) => setMenuItems(menuItems.map(i => 
                           i._id === item._id ? {...i, material6: e.target.value} : i
                         ))}
-                        className="w-full p-2 border rounded"
+                        className="form-input"
                       />
                     ) : (
                       item.material6 || ''
                     )}
                   </td>
                   {isEditing && (
-                    <td className="px-6 py-4 border-b">
+                    <td>
                       <button
                         onClick={() => handleSave(item)}
-                        className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                        className="btn btn-primary"
                       >
                         保存
                       </button>

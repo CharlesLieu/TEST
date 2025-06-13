@@ -110,10 +110,11 @@ def upload_price_list():
         price_items = []
         for _, row in df.iterrows():
             item = {
-                'name': row['菜品名称'],   # 对应数据库的name字段
-                'hard': row['难易程度'],   # 对应数据库的hard字段
-                'description': row['菜品描述'],  # 对应数据库的description字段
-                'material': row['原材料']   # 对应数据库的material字段
+                'name': convert_to_string(row['食材']),   # 对应数据库的name字段
+                'price': float(row['单价USD']) if pd.notna(row['单价USD']) else 0.0,   # 对应数据库的price字段
+                'unit': convert_to_string(row['单位']),   # 对应数据库的unit字段
+                'location': convert_to_string(row['采购地点']),  # 对应数据库的location字段
+                'notes': convert_to_string(row['备注'])   # 对应数据库的notes字段
             }
             price_items.append(item)
         

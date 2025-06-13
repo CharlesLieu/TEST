@@ -4,9 +4,10 @@ import axios from 'axios';
 interface PriceItem {
   _id: string;
   name: string;
-  hard: string;
-  description: string;
-  material: string;
+  price: number;
+  unit: string;
+  location: string;
+  notes: string;
 }
 
 const PriceListPage: React.FC = () => {
@@ -104,10 +105,11 @@ const PriceListPage: React.FC = () => {
           <table className="data-table">
             <thead>
               <tr>
-                <th>菜品名称</th>
-                <th>难易程度</th>
-                <th>菜品描述</th>
-                <th>原材料</th>
+                <th>食材名称</th>
+                <th>单价(USD)</th>
+                <th>单位</th>
+                <th>采购地点</th>
+                <th>备注</th>
                 {isEditing && <th>操作</th>}
               </tr>
             </thead>
@@ -131,43 +133,57 @@ const PriceListPage: React.FC = () => {
                   <td>
                     {isEditing ? (
                       <input
-                        type="text"
-                        value={item.hard}
+                        type="number"
+                        value={item.price}
                         onChange={(e) => setPriceItems(priceItems.map(i => 
-                          i._id === item._id ? {...i, hard: e.target.value} : i
+                          i._id === item._id ? {...i, price: parseFloat(e.target.value)} : i
                         ))}
                         className="form-input"
                       />
                     ) : (
-                      item.hard
+                      item.price
                     )}
                   </td>
                   <td>
                     {isEditing ? (
                       <input
                         type="text"
-                        value={item.description}
+                        value={item.unit}
                         onChange={(e) => setPriceItems(priceItems.map(i => 
-                          i._id === item._id ? {...i, description: e.target.value} : i
+                          i._id === item._id ? {...i, unit: e.target.value} : i
                         ))}
                         className="form-input"
                       />
                     ) : (
-                      item.description
+                      item.unit
                     )}
                   </td>
                   <td>
                     {isEditing ? (
                       <input
                         type="text"
-                        value={item.material}
+                        value={item.location}
                         onChange={(e) => setPriceItems(priceItems.map(i => 
-                          i._id === item._id ? {...i, material: e.target.value} : i
+                          i._id === item._id ? {...i, location: e.target.value} : i
                         ))}
                         className="form-input"
                       />
                     ) : (
-                      item.material
+                      item.location
+                    )}
+                  </td>
+                  <td>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        value={item.notes}
+                        onChange={(e) => setPriceItems(priceItems.map(i => 
+                          i._id === item._id ? {...i, notes: e.target.value} : i
+                        ))}
+                        className="form-input"
+                      />
+                    ) : (
+                      item.notes
                     )}
                   </td>
                   {isEditing && (
