@@ -1,0 +1,4 @@
+前端：轻量级的react
+后端：python
+数据库： mongoDB
+CSS： tailwind
