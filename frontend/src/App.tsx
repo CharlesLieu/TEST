@@ -2,10 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import MenuPage from './pages/MenuPage';
 import PriceListPage from './pages/PriceListPage';
-import RecipesPage from './pages/RecipesPage';
-import RecipeRequirementsPage from './pages/RecipeRequirementsPage';
-import RecipeGeneratorPage from './pages/RecipeGeneratorPage';
-import TabBar from './components/TabBar';
+
 
 const App: React.FC = () => {
   return (
@@ -29,23 +26,11 @@ const App: React.FC = () => {
                   上传我的价格清单
                 </Link>
               </div>
-<<<<<<< HEAD
-            </div>
-          } />
-          <Route path="/menu" element={<MenuPage />} />
-          <Route path="/price-list" element={<PriceListPage />} />
-          <Route path="/recipes" element={<RecipesPage />} />
-          <Route path="/recipe-requirements" element={<RecipeRequirementsPage />} />
-          <Route path="/recipe-generator" element={<RecipeGeneratorPage />} />
-        </Routes>
-        <TabBar />
-=======
             } />
             <Route path="/menu" element={<MenuPage />} />
             <Route path="/price-list" element={<PriceListPage />} />
           </Routes>
         </div>
->>>>>>> parent of 65545098 (release1.0.0)
       </div>
     </Router>
   );
