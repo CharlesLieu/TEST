@@ -110,10 +110,11 @@ def upload_price_list():
         price_items = []
         for _, row in df.iterrows():
             item = {
-                'name': row['菜品名称'],   # 对应数据库的name字段
-                'hard': row['难易程度'],   # 对应数据库的hard字段
-                'description': row['菜品描述'],  # 对应数据库的description字段
-                'material': row['原材料']   # 对应数据库的material字段
+                'material': convert_to_string(row['食材']),
+                'price': convert_to_string(row['单价USD']),
+                'unit': convert_to_string(row['单位']),
+                'location': convert_to_string(row['采购地点']),
+                'remark': convert_to_string(row['备注'])
             }
             price_items.append(item)
         
@@ -178,9 +179,12 @@ def get_latest_menu():
 def get_latest_price_list():
     # 获取最新的价格清单数据
     price_items = list(price_list_collection.find())
-    # 将 ObjectId 转换为字符串
+    # 将 ObjectId 转换为字符串，并确保所有字段都是字符串类型
     for item in price_items:
         item['_id'] = str(item['_id'])
+        # 确保所有字段都是字符串类型
+        for key in item:
+            item[key] = convert_to_string(item[key])
     return jsonify(price_items)
 
 if __name__ == '__main__':
