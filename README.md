@@ -358,6 +358,7 @@
 - backend/app.py：添加了数据转换函数并修改了数据处理逻辑
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## 会话总结 - 更新价格清单功能
 
 ### 主要目的
@@ -440,6 +441,8 @@
 - frontend/src/App.tsx：更新路由配置
 - frontend/src/App.css：添加新组件样式
 
+=======
+>>>>>>> parent of 65545098 (release1.0.0)
 =======
 >>>>>>> parent of 65545098 (release1.0.0)
 ## 安装说明
