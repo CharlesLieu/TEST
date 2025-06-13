@@ -14,7 +14,7 @@ client = MongoClient('mongodb://localhost:27017/')
 db = client['menu_management']
 menu_collection = db['menu']
 price_list_collection = db['price_list']
-dish_names_collection = db['dish_names']  # 新增菜品名称集合
+dish_info_collection = db['dish_info']  # 新增菜品信息集合
 
 # 文件上传配置
 UPLOAD_FOLDER = 'uploads'
@@ -54,15 +54,15 @@ def upload_menu():
         
         # 清空现有数据
         menu_collection.delete_many({})
-        dish_names_collection.delete_many({})  # 清空菜品名称集合
+        dish_info_collection.delete_many({})  # 清空菜品信息表
         
         # 插入新数据
         menu_items = []
-        dish_names = []  # 存储菜品名称
+        dish_info_items = []  # 存储菜品信息
         
         for _, row in df.iterrows():
-            # 处理完整菜单数据
-            item = {
+            # 处理菜单数据
+            menu_item = {
                 'name': convert_to_string(row['菜品名称']),
                 'hard': convert_to_string(row['难易程度']),
                 'description': convert_to_string(row['菜品描述']),
@@ -73,24 +73,25 @@ def upload_menu():
                 'material5': convert_to_string(row['原材料5']),
                 'material6': convert_to_string(row['原材料6'])
             }
-            menu_items.append(item)
+            menu_items.append(menu_item)
             
-            # 只保存菜品名称
-            dish_name = {
-                'name': convert_to_string(row['菜品名称'])
+            # 处理菜品信息数据
+            dish_info = {
+                'name': convert_to_string(row['菜品名称']),
+                'description': convert_to_string(row['菜品描述'])
             }
-            dish_names.append(dish_name)
+            dish_info_items.append(dish_info)
         
         if menu_items:
-            # 保存完整菜单数据
+            # 保存菜单数据
             result = menu_collection.insert_many(menu_items)
             # 把 ObjectId 转成字符串
             for i, item in enumerate(menu_items):
                 item['_id'] = str(result.inserted_ids[i])
             
-            # 保存菜品名称数据
-            dish_result = dish_names_collection.insert_many(dish_names)
-            for i, item in enumerate(dish_names):
+            # 保存菜品信息数据
+            dish_result = dish_info_collection.insert_many(dish_info_items)
+            for i, item in enumerate(dish_info_items):
                 item['_id'] = str(dish_result.inserted_ids[i])
         
         # 删除临时文件
@@ -201,14 +202,14 @@ def get_latest_price_list():
         item['_id'] = str(item['_id'])
     return jsonify(price_items)
 
-@app.route('/api/dish-names/latest', methods=['GET'])
-def get_latest_dish_names():
-    # 获取最新的菜品名称数据
-    dish_names = list(dish_names_collection.find())
+@app.route('/api/dish-info/latest', methods=['GET'])
+def get_latest_dish_info():
+    # 获取最新的菜品信息数据
+    dish_info_items = list(dish_info_collection.find())
     # 将 ObjectId 转换为字符串
-    for item in dish_names:
+    for item in dish_info_items:
         item['_id'] = str(item['_id'])
-    return jsonify(dish_names)
+    return jsonify(dish_info_items)
 
 if __name__ == '__main__':
     app.run(debug=True) 
