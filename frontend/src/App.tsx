@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import MenuPage from './pages/MenuPage';
 import PriceListPage from './pages/PriceListPage';
+import html2canvas from 'html2canvas';
 
 const App: React.FC = () => {
   const [menuData, setMenuData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const tableRef = useRef<HTMLTableElement>(null);
 
   const handleGenerateMenu = async () => {
     setLoading(true);
@@ -27,33 +29,67 @@ const App: React.FC = () => {
     }
   };
 
+  const handleDownload = async () => {
+    if (!tableRef.current) return;
+    
+    try {
+      const canvas = await html2canvas(tableRef.current, {
+        background: '#ffffff',
+        logging: false,
+        useCORS: true,
+        width: tableRef.current.offsetWidth * 2,
+        height: tableRef.current.offsetHeight * 2,
+      });
+      
+      const image = canvas.toDataURL('image/jpeg', 1.0);
+      const link = document.createElement('a');
+      link.download = `每周菜单_${new Date().toLocaleDateString()}.jpg`;
+      link.href = image;
+      link.click();
+    } catch (err) {
+      console.error('下载失败:', err);
+      setError('下载失败，请重试');
+    }
+  };
+
   // 渲染菜单表格
   const renderMenuTable = () => {
     if (!menuData) return null;
     const days = Object.keys(menuData);
     return (
-      <table border={1} style={{ marginTop: 20, width: '100%', textAlign: 'center' }}>
-        <thead>
-          <tr>
-            <th>日期</th>
-            <th>中餐-荤菜</th>
-            <th>中餐-素菜</th>
-            <th>晚餐-荤菜</th>
-            <th>晚餐-素菜</th>
-          </tr>
-        </thead>
-        <tbody>
-          {days.map(day => (
-            <tr key={day}>
-              <td>{day}</td>
-              <td>{menuData[day]['中餐']?.['荤菜']}</td>
-              <td>{menuData[day]['中餐']?.['素菜']}</td>
-              <td>{menuData[day]['晚餐']?.['荤菜']}</td>
-              <td>{menuData[day]['晚餐']?.['素菜']}</td>
+      <div>
+        <table ref={tableRef} border={1} style={{ marginTop: 20, width: '100%', textAlign: 'center', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr>
+              <th style={{ padding: '10px', backgroundColor: '#f0f0f0' }}>日期</th>
+              <th style={{ padding: '10px', backgroundColor: '#f0f0f0' }}>中餐-荤菜</th>
+              <th style={{ padding: '10px', backgroundColor: '#f0f0f0' }}>中餐-素菜</th>
+              <th style={{ padding: '10px', backgroundColor: '#f0f0f0' }}>晚餐-荤菜</th>
+              <th style={{ padding: '10px', backgroundColor: '#f0f0f0' }}>晚餐-素菜</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {days.map(day => (
+              <tr key={day}>
+                <td style={{ padding: '10px' }}>{day}</td>
+                <td style={{ padding: '10px' }}>{menuData[day]['中餐']?.['荤菜']}</td>
+                <td style={{ padding: '10px' }}>{menuData[day]['中餐']?.['素菜']}</td>
+                <td style={{ padding: '10px' }}>{menuData[day]['晚餐']?.['荤菜']}</td>
+                <td style={{ padding: '10px' }}>{menuData[day]['晚餐']?.['素菜']}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {menuData && (
+          <button
+            className="btn btn-primary"
+            style={{ marginTop: '20px' }}
+            onClick={handleDownload}
+          >
+            下载菜单
+          </button>
+        )}
+      </div>
     );
   };
 
