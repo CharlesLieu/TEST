@@ -509,6 +509,54 @@
 - **修改的文件**：
   - backend/app.py
 
+## 会话总结 - Gemini API 模型修复
+
+### 会话主要目的
+- 修复 Gemini API 调用错误
+- 更新模型名称以匹配最新版本
+
+### 完成的主要任务
+- 将模型名称从 "gemini-pro" 更新为 "gemini-1.5-pro"
+- 修复了 404 错误问题
+
+### 关键决策和解决方案
+- 根据错误信息识别出模型名称不正确
+- 使用最新的 Gemini 1.5 Pro 模型
+
+### 使用的技术栈
+- React
+- TypeScript
+- Google Generative AI SDK (gemini-1.5-pro)
+
+### 修改的文件
+- frontend/src/App.tsx：更新了 Gemini API 模型名称
+
+## 会话总结 - 创建每周菜谱生成脚本
+
+### 会话主要目的
+- 创建一个Python脚本，用于从MongoDB数据库中生成每周菜谱
+- 实现自动化的菜谱生成功能
+
+### 完成的主要任务
+- 安装了pymongo依赖
+- 创建了generate_menu.py脚本
+- 实现了数据库连接、菜品分类和菜单生成功能
+
+### 关键决策和解决方案
+- 使用MongoDB存储菜品数据
+- 实现了荤素菜品的自动分类
+- 使用随机抽样确保菜品不重复
+- 添加了错误处理机制
+
+### 使用的技术栈
+- Python
+- MongoDB
+- pymongo库
+- datetime库
+
+### 修改的文件
+- 新建：generate_menu.py：实现了菜谱生成功能
+
 ## 安装说明
 
 ### 前端

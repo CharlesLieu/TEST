@@ -6,6 +6,11 @@ import pandas as pd
 import os
 from werkzeug.utils import secure_filename
 
+# 新增导入
+import sys
+sys.path.append('..')
+from generate_menu import get_weekly_menu_json
+
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
@@ -210,6 +215,11 @@ def get_latest_dish_info():
     for item in dish_info_items:
         item['_id'] = str(item['_id'])
     return jsonify(dish_info_items)
+
+@app.route('/api/generate-menu', methods=['GET'])
+def generate_menu_api():
+    menu = get_weekly_menu_json()
+    return jsonify(menu)
 
 if __name__ == '__main__':
     app.run(debug=True) 
