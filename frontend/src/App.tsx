@@ -4,9 +4,6 @@ import MenuPage from './pages/MenuPage';
 import PriceListPage from './pages/PriceListPage';
 import html2canvas from 'html2canvas';
 
-// API地址配置
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://192.168.100.12:5000';
-
 const App: React.FC = () => {
   const [menuData, setMenuData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -18,7 +15,7 @@ const App: React.FC = () => {
     setError('');
     setMenuData(null);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/generate-menu`);
+      const res = await fetch('http://localhost:5000/api/generate-menu');
       const data = await res.json();
       if (data.error) {
         setError(data.error);
