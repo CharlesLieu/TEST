@@ -36,7 +36,17 @@ def get_dishes(db):
     """从数据库获取所有菜品"""
     try:
         menu_collection = db['menu']
-        dishes = list(menu_collection.find({}, {'name': 1, 'description': 1, '_id': 0}))
+        dishes = list(menu_collection.find({}, {
+            'name': 1, 
+            'description': 1, 
+            'material1': 1,
+            'material2': 1,
+            'material3': 1,
+            'material4': 1,
+            'material5': 1,
+            'material6': 1,
+            '_id': 0
+        }))
         print(f"\n从数据库获取到的菜品数量: {len(dishes)}")
         if len(dishes) > 0:
             print("示例菜品数据:")
@@ -57,9 +67,9 @@ def separate_dishes(dishes):
     for dish in dishes:
         print(f"菜品: {dish['name']}, 描述: {dish['description']}")
         if '荤' in dish['description']:
-            meat_dishes.append(dish['name'])
+            meat_dishes.append(dish)
         elif '素' in dish['description']:
-            veg_dishes.append(dish['name'])
+            veg_dishes.append(dish)
     
     print(f"\n荤菜数量: {len(meat_dishes)}")
     print(f"素菜数量: {len(veg_dishes)}")
@@ -85,17 +95,65 @@ def generate_weekly_menu(meat_dishes, veg_dishes):
     for i, date in enumerate(dates):
         daily_menu = {
             '中餐': {
-                '荤菜': selected_meat[i*2],
-                '素菜': selected_veg[i*2]
+                '荤菜': selected_meat[i*2]['name'],
+                '素菜': selected_veg[i*2]['name']
             },
             '晚餐': {
-                '荤菜': selected_meat[i*2+1],
-                '素菜': selected_veg[i*2+1]
+                '荤菜': selected_meat[i*2+1]['name'],
+                '素菜': selected_veg[i*2+1]['name']
             }
         }
         weekly_menu[date] = daily_menu
     
     return weekly_menu
+
+def generate_ingredients_summary(weekly_menu, meat_dishes, veg_dishes):
+    """生成食材汇总表格"""
+    # 创建菜品名称到完整菜品信息的映射
+    dish_map = {}
+    for dish in meat_dishes + veg_dishes:
+        dish_map[dish['name']] = dish
+    
+    # 收集所有需要的食材
+    ingredients_count = {}
+    
+    for date, meals in weekly_menu.items():
+        for meal_type, dishes in meals.items():
+            for dish_type, dish_name in dishes.items():
+                if dish_name in dish_map:
+                    dish_info = dish_map[dish_name]
+                    # 收集该菜品的所有食材
+                    for i in range(1, 7):
+                        material_key = f'material{i}'
+                        if material_key in dish_info and dish_info[material_key]:
+                            material = dish_info[material_key].strip()
+                            if material:  # 确保食材不为空
+                                if material in ingredients_count:
+                                    ingredients_count[material] += 1
+                                else:
+                                    ingredients_count[material] = 1
+    
+    return ingredients_count
+
+def print_ingredients_summary(ingredients_count):
+    """打印食材汇总表格"""
+    if not ingredients_count:
+        print("\n=== 食材汇总 ===")
+        print("暂无食材信息")
+        return
+    
+    print("\n=== 食材汇总 ===")
+    print("食材名称".ljust(20) + "|" + "需要次数".ljust(10))
+    print("-" * 30)
+    
+    # 按食材名称排序
+    sorted_ingredients = sorted(ingredients_count.items(), key=lambda x: x[0])
+    
+    for ingredient, count in sorted_ingredients:
+        print(f"{ingredient.ljust(20)}|{str(count).ljust(10)}")
+    
+    print("-" * 30)
+    print(f"总计食材种类: {len(ingredients_count)}")
 
 def print_menu(weekly_menu):
     """打印菜单"""
@@ -114,7 +172,11 @@ def get_weekly_menu_json():
         dishes = get_dishes(db)
         meat_dishes, veg_dishes = separate_dishes(dishes)
         weekly_menu = generate_weekly_menu(meat_dishes, veg_dishes)
-        return weekly_menu
+        ingredients_count = generate_ingredients_summary(weekly_menu, meat_dishes, veg_dishes)
+        return {
+            "weekly_menu": weekly_menu,
+            "ingredients_summary": ingredients_count
+        }
     except Exception as e:
         return {"error": str(e)}
 
@@ -132,6 +194,10 @@ def main():
         # 生成并打印菜单
         weekly_menu = generate_weekly_menu(meat_dishes, veg_dishes)
         print_menu(weekly_menu)
+        
+        # 生成并打印食材汇总
+        ingredients_count = generate_ingredients_summary(weekly_menu, meat_dishes, veg_dishes)
+        print_ingredients_summary(ingredients_count)
         
     except Exception as e:
         print(f"发生错误: {str(e)}")

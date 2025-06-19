@@ -9,6 +9,7 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const tableRef = useRef<HTMLTableElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   const handleGenerateMenu = async () => {
     setLoading(true);
@@ -30,15 +31,15 @@ const App: React.FC = () => {
   };
 
   const handleDownload = async () => {
-    if (!tableRef.current) return;
+    if (!contentRef.current) return;
     
     try {
-      const canvas = await html2canvas(tableRef.current, {
+      const canvas = await html2canvas(contentRef.current, {
         background: '#ffffff',
         logging: false,
         useCORS: true,
-        width: tableRef.current.offsetWidth * 2,
-        height: tableRef.current.offsetHeight * 2,
+        width: contentRef.current.offsetWidth * 2,
+        height: contentRef.current.offsetHeight * 2,
       });
       
       const image = canvas.toDataURL('image/jpeg', 1.0);
@@ -55,40 +56,74 @@ const App: React.FC = () => {
   // 渲染菜单表格
   const renderMenuTable = () => {
     if (!menuData) return null;
-    const days = Object.keys(menuData);
+    
+    // 检查数据结构
+    const weeklyMenu = menuData.weekly_menu || menuData;
+    const ingredientsSummary = menuData.ingredients_summary;
+    
+    const days = Object.keys(weeklyMenu);
     return (
       <div>
-        <table ref={tableRef} border={1} style={{ marginTop: 20, width: '100%', textAlign: 'center', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr>
-              <th style={{ padding: '10px', backgroundColor: '#f0f0f0' }}>日期</th>
-              <th style={{ padding: '10px', backgroundColor: '#f0f0f0' }}>中餐-荤菜</th>
-              <th style={{ padding: '10px', backgroundColor: '#f0f0f0' }}>中餐-素菜</th>
-              <th style={{ padding: '10px', backgroundColor: '#f0f0f0' }}>晚餐-荤菜</th>
-              <th style={{ padding: '10px', backgroundColor: '#f0f0f0' }}>晚餐-素菜</th>
-            </tr>
-          </thead>
-          <tbody>
-            {days.map(day => (
-              <tr key={day}>
-                <td style={{ padding: '10px' }}>{day}</td>
-                <td style={{ padding: '10px' }}>{menuData[day]['中餐']?.['荤菜']}</td>
-                <td style={{ padding: '10px' }}>{menuData[day]['中餐']?.['素菜']}</td>
-                <td style={{ padding: '10px' }}>{menuData[day]['晚餐']?.['荤菜']}</td>
-                <td style={{ padding: '10px' }}>{menuData[day]['晚餐']?.['素菜']}</td>
+        <div ref={contentRef}>
+          <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>每周菜单</h2>
+          <table ref={tableRef} border={1} style={{ marginTop: 20, width: '100%', textAlign: 'center', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr>
+                <th style={{ padding: '10px', backgroundColor: '#f0f0f0' }}>日期</th>
+                <th style={{ padding: '10px', backgroundColor: '#f0f0f0' }}>中餐-荤菜</th>
+                <th style={{ padding: '10px', backgroundColor: '#f0f0f0' }}>中餐-素菜</th>
+                <th style={{ padding: '10px', backgroundColor: '#f0f0f0' }}>晚餐-荤菜</th>
+                <th style={{ padding: '10px', backgroundColor: '#f0f0f0' }}>晚餐-素菜</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-        {menuData && (
+            </thead>
+            <tbody>
+              {days.map(day => (
+                <tr key={day}>
+                  <td style={{ padding: '10px' }}>{day}</td>
+                  <td style={{ padding: '10px' }}>{weeklyMenu[day]['中餐']?.['荤菜']}</td>
+                  <td style={{ padding: '10px' }}>{weeklyMenu[day]['中餐']?.['素菜']}</td>
+                  <td style={{ padding: '10px' }}>{weeklyMenu[day]['晚餐']?.['荤菜']}</td>
+                  <td style={{ padding: '10px' }}>{weeklyMenu[day]['晚餐']?.['素菜']}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {/* 食材汇总表格 */}
+          {ingredientsSummary && (
+            <div style={{ marginTop: '30px' }}>
+              <h3 style={{ textAlign: 'center', marginBottom: '15px' }}>食材汇总</h3>
+              <table border={1} style={{ width: '100%', textAlign: 'center', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr>
+                    <th style={{ padding: '10px', backgroundColor: '#e8f5e8' }}>食材名称</th>
+                    <th style={{ padding: '10px', backgroundColor: '#e8f5e8' }}>需要次数</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.entries(ingredientsSummary)
+                    .sort(([a], [b]) => a.localeCompare(b))
+                    .map(([ingredient, count]) => (
+                      <tr key={ingredient}>
+                        <td style={{ padding: '10px' }}>{ingredient}</td>
+                        <td style={{ padding: '10px' }}>{count as number}</td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+              <p style={{ marginTop: '10px', color: '#666', textAlign: 'center' }}>
+                总计食材种类: {Object.keys(ingredientsSummary).length}
+              </p>
+            </div>
+          )}
+        </div>
+        <div style={{ textAlign: 'center', marginTop: '20px' }}>
           <button
             className="btn btn-primary"
-            style={{ marginTop: '20px' }}
             onClick={handleDownload}
           >
             下载菜单
           </button>
-        )}
+        </div>
       </div>
     );
   };
