@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import MenuPage from './pages/MenuPage';
 import PriceListPage from './pages/PriceListPage';
 import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 const App: React.FC = () => {
   const [menuData, setMenuData] = useState<any>(null);
@@ -38,15 +39,36 @@ const App: React.FC = () => {
         background: '#ffffff',
         logging: false,
         useCORS: true,
-        width: contentRef.current.offsetWidth * 2,
-        height: contentRef.current.offsetHeight * 2,
+        allowTaint: true,
+        width: contentRef.current.offsetWidth, // 使用原始尺寸，减少分辨率
+        height: contentRef.current.offsetHeight,
       });
       
-      const image = canvas.toDataURL('image/jpeg', 1.0);
-      const link = document.createElement('a');
-      link.download = `每周菜单_${new Date().toLocaleDateString()}.jpg`;
-      link.href = image;
-      link.click();
+      // 获取画布尺寸
+      const imgWidth = 210; // A4纸宽度 (mm)
+      const pageHeight = 295; // A4纸高度 (mm)
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      
+      // 创建PDF文档，使用压缩选项
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      let position = 0;
+      
+      // 添加图片到PDF，使用JPEG格式和较低质量来压缩
+      const imageData = canvas.toDataURL('image/jpeg', 0.7); // 使用JPEG格式，质量设为0.7
+      pdf.addImage(imageData, 'JPEG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+      
+      // 如果内容超过一页，添加新页面
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imageData, 'JPEG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+      
+      // 下载PDF文件
+      pdf.save(`每周菜单_${new Date().toLocaleDateString()}.pdf`);
     } catch (err) {
       console.error('下载失败:', err);
       setError('下载失败，请重试');
@@ -121,7 +143,7 @@ const App: React.FC = () => {
             className="btn btn-primary"
             onClick={handleDownload}
           >
-            下载菜单
+            下载PDF
           </button>
         </div>
       </div>
