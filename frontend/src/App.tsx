@@ -11,6 +11,7 @@ const App: React.FC = () => {
   const [error, setError] = useState('');
   const tableRef = useRef<HTMLTableElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const ingredientsRef = useRef<HTMLDivElement>(null);
 
   const handleGenerateMenu = async () => {
     setLoading(true);
@@ -32,42 +33,69 @@ const App: React.FC = () => {
   };
 
   const handleDownload = async () => {
-    if (!contentRef.current) return;
-    
     try {
-      const canvas = await html2canvas(contentRef.current, {
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgWidth = 210;
+
+      // 1. 创建隐藏div用于菜单表格
+      const menuDiv = document.createElement('div');
+      menuDiv.style.position = 'fixed';
+      menuDiv.style.left = '-9999px';
+      menuDiv.style.top = '0';
+      menuDiv.style.background = '#fff';
+      menuDiv.style.zIndex = '9999';
+      menuDiv.style.width = contentRef.current ? contentRef.current.offsetWidth + 'px' : '800px';
+      menuDiv.innerHTML = contentRef.current ? contentRef.current.innerHTML : '';
+      document.body.appendChild(menuDiv);
+
+      // 2. 创建隐藏div用于食材汇总表格
+      let ingredientsDiv: HTMLDivElement | null = null;
+      if (ingredientsRef.current) {
+        ingredientsDiv = document.createElement('div');
+        ingredientsDiv.style.position = 'fixed';
+        ingredientsDiv.style.left = '-9999px';
+        ingredientsDiv.style.top = '0';
+        ingredientsDiv.style.background = '#fff';
+        ingredientsDiv.style.zIndex = '9999';
+        ingredientsDiv.style.width = ingredientsRef.current.offsetWidth + 'px';
+        ingredientsDiv.innerHTML = ingredientsRef.current.innerHTML;
+        document.body.appendChild(ingredientsDiv);
+      }
+
+      // 3. 截图菜单表格
+      const menuCanvas = await html2canvas(menuDiv, {
         background: '#ffffff',
         logging: false,
         useCORS: true,
         allowTaint: true,
-        width: contentRef.current.offsetWidth, // 使用原始尺寸，减少分辨率
-        height: contentRef.current.offsetHeight,
+        width: menuDiv.offsetWidth,
+        height: menuDiv.offsetHeight,
       });
-      
-      // 获取画布尺寸
-      const imgWidth = 210; // A4纸宽度 (mm)
-      const pageHeight = 295; // A4纸高度 (mm)
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let heightLeft = imgHeight;
-      
-      // 创建PDF文档，使用压缩选项
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      let position = 0;
-      
-      // 添加图片到PDF，使用JPEG格式和较低质量来压缩
-      const imageData = canvas.toDataURL('image/jpeg', 0.7); // 使用JPEG格式，质量设为0.7
-      pdf.addImage(imageData, 'JPEG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-      
-      // 如果内容超过一页，添加新页面
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
+      const menuImgHeight = (menuCanvas.height * imgWidth) / menuCanvas.width;
+      const menuImageData = menuCanvas.toDataURL('image/jpeg', 0.9);
+      pdf.addImage(menuImageData, 'JPEG', 0, 0, imgWidth, menuImgHeight);
+
+      // 4. 截图食材汇总表格
+      if (ingredientsDiv) {
+        const ingredientsCanvas = await html2canvas(ingredientsDiv, {
+          background: '#ffffff',
+          logging: false,
+          useCORS: true,
+          allowTaint: true,
+          width: ingredientsDiv.offsetWidth,
+          height: ingredientsDiv.offsetHeight,
+        });
+        const ingredientsImgHeight = (ingredientsCanvas.height * imgWidth) / ingredientsCanvas.width;
+        const ingredientsImageData = ingredientsCanvas.toDataURL('image/jpeg', 0.9);
         pdf.addPage();
-        pdf.addImage(imageData, 'JPEG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
+        pdf.addImage(ingredientsImageData, 'JPEG', 0, 0, imgWidth, ingredientsImgHeight);
       }
-      
-      // 下载PDF文件
+
+      // 5. 移除隐藏div
+      document.body.removeChild(menuDiv);
+      if (ingredientsDiv) document.body.removeChild(ingredientsDiv);
+
+      // 6. 下载PDF
       pdf.save(`每周菜单_${new Date().toLocaleDateString()}.pdf`);
     } catch (err) {
       console.error('下载失败:', err);
@@ -86,6 +114,7 @@ const App: React.FC = () => {
     const days = Object.keys(weeklyMenu);
     return (
       <div>
+        {/* 菜单表格容器 */}
         <div ref={contentRef}>
           <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>每周菜单</h2>
           <table ref={tableRef} border={1} style={{ marginTop: 20, width: '100%', textAlign: 'center', borderCollapse: 'collapse' }}>
@@ -110,34 +139,46 @@ const App: React.FC = () => {
               ))}
             </tbody>
           </table>
-          {/* 食材汇总表格 */}
-          {ingredientsSummary && (
-            <div style={{ marginTop: '30px' }}>
-              <h3 style={{ textAlign: 'center', marginBottom: '15px' }}>食材汇总</h3>
-              <table border={1} style={{ width: '100%', textAlign: 'center', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr>
-                    <th style={{ padding: '10px', backgroundColor: '#e8f5e8' }}>食材名称</th>
-                    <th style={{ padding: '10px', backgroundColor: '#e8f5e8' }}>需要次数</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {Object.entries(ingredientsSummary)
-                    .sort(([a], [b]) => a.localeCompare(b))
-                    .map(([ingredient, count]) => (
-                      <tr key={ingredient}>
-                        <td style={{ padding: '10px' }}>{ingredient}</td>
-                        <td style={{ padding: '10px' }}>{count as number}</td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-              <p style={{ marginTop: '10px', color: '#666', textAlign: 'center' }}>
-                总计食材种类: {Object.keys(ingredientsSummary).length}
-              </p>
-            </div>
-          )}
         </div>
+        
+        {/* 食材汇总表格容器 - 完全独立 */}
+        {ingredientsSummary && (
+          <div 
+            ref={ingredientsRef} 
+            style={{ 
+              marginTop: '30px',
+              border: '2px solid #e8f5e8',
+              padding: '20px',
+              borderRadius: '8px',
+              position: 'relative',
+              zIndex: 1
+            }}
+          >
+            <h3 style={{ textAlign: 'center', marginBottom: '15px', color: '#2e7d32' }}>食材汇总</h3>
+            <table border={1} style={{ width: '100%', textAlign: 'center', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr>
+                  <th style={{ padding: '10px', backgroundColor: '#e8f5e8' }}>食材名称</th>
+                  <th style={{ padding: '10px', backgroundColor: '#e8f5e8' }}>需要次数</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.entries(ingredientsSummary)
+                  .sort(([a], [b]) => a.localeCompare(b))
+                  .map(([ingredient, count]) => (
+                    <tr key={ingredient}>
+                      <td style={{ padding: '10px' }}>{ingredient}</td>
+                      <td style={{ padding: '10px' }}>{count as number}</td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+            <p style={{ marginTop: '10px', color: '#666', textAlign: 'center' }}>
+              总计食材种类: {Object.keys(ingredientsSummary).length}
+            </p>
+          </div>
+        )}
+        
         <div style={{ textAlign: 'center', marginTop: '20px' }}>
           <button
             className="btn btn-primary"
