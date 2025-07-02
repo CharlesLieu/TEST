@@ -17,7 +17,7 @@ interface MenuItem {
 const MenuPage: React.FC = () => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [isEditing, setIsEditing] = useState(false);
-  const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
+
   const [loading, setLoading] = useState(true);
 
   // 加载最新数据
@@ -112,10 +112,7 @@ const MenuPage: React.FC = () => {
     }
   };
 
-  const handleEdit = (item: MenuItem) => {
-    setEditingItem(item);
-    setIsEditing(true);
-  };
+
 
   const handleSave = async (item: MenuItem) => {
     try {

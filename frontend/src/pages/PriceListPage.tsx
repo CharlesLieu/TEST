@@ -13,7 +13,7 @@ interface PriceItem {
 const PriceListPage: React.FC = () => {
   const [priceItems, setPriceItems] = useState<PriceItem[]>([]);
   const [isEditing, setIsEditing] = useState(false);
-  const [editingItem, setEditingItem] = useState<PriceItem | null>(null);
+
   const [loading, setLoading] = useState(true);
 
   // 加载最新数据
@@ -51,10 +51,7 @@ const PriceListPage: React.FC = () => {
     }
   };
 
-  const handleEdit = (item: PriceItem) => {
-    setEditingItem(item);
-    setIsEditing(true);
-  };
+
 
   const handleSave = async (item: PriceItem) => {
     try {
