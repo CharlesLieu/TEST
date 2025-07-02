@@ -2,6 +2,7 @@
   "name": "menu-management-frontend",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://charleslieu.github.io/TEST",
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "@types/node": "^16.18.126",
